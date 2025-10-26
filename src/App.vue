@@ -344,6 +344,30 @@ const EMBEDDED_PSRAM_CAPACITY = {
   },
 };
 
+const JEDEC_MANUFACTURERS = {
+  0x01: 'Spansion / Cypress',
+  0x04: 'Fujitsu',
+  0x1c: 'Eon / Puya',
+  0x20: 'Micron / Numonyx',
+  0x37: 'AMIC',
+  0x40: 'Zbit Semiconductor',
+  0x41: 'Intel',
+  0x45: 'XMC',
+  0x62: 'SST',
+  0x68: 'Atmel / Adesto',
+  0x9d: 'ISSI',
+  0x9f: 'ESMT',
+  0xa1: 'Intel (legacy)',
+  0xbf: 'Microchip',
+  0xc2: 'Macronix',
+  0xc8: 'GigaDevice',
+  0xc9: 'GigaDevice',
+  0xcd: 'GigaDevice',
+  0xd5: 'ESMT',
+  0xef: 'Winbond',
+  0xff: 'XTX Technology',
+};
+
 function resolvePackageLabel(chipKey, pkgVersion, chipRevision) {
   const mapper = PACKAGE_LABELS[chipKey];
   if (!mapper || typeof pkgVersion !== 'number' || Number.isNaN(pkgVersion)) {
@@ -605,36 +629,28 @@ async function connect() {
       facts.push({ label: 'Embedded Flash', value: embeddedFlash });
     }
 
-    const embeddedPsram = resolveEmbeddedPsram(chipKey, psramCap, psramVendor, featureList);
-    if (embeddedPsram) {
-      facts.push({ label: 'Embedded PSRAM', value: embeddedPsram });
-    }
-
-    if (
-      flashVendor &&
-      !facts.some(fact => fact.label === 'Embedded Flash' && fact.value.includes(flashVendor))
-    ) {
-      facts.push({ label: 'Flash Vendor', value: flashVendor });
-    }
-
-    if (
-      psramVendor &&
-      !facts.some(fact => fact.label === 'Embedded PSRAM' && fact.value.includes(psramVendor))
-    ) {
-      facts.push({ label: 'PSRAM Vendor', value: psramVendor });
-    }
-
     if (typeof flashId === 'number' && !Number.isNaN(flashId)) {
-      const manufacturerHex = `0x${(flashId & 0xff).toString(16).padStart(2, '0').toUpperCase()}`;
+      const manufacturerCode = flashId & 0xff;
+      const manufacturerHex = `0x${manufacturerCode.toString(16).padStart(2, '0').toUpperCase()}`;
       const memoryType = (flashId >> 8) & 0xff;
       const capacityCode = (flashId >> 16) & 0xff;
       const deviceHex = `0x${memoryType.toString(16).padStart(2, '0').toUpperCase()}${capacityCode
         .toString(16)
         .padStart(2, '0')
         .toUpperCase()}`;
-      facts.push({ label: 'Flash ID', value: `0x${flashId.toString(16).padStart(6, '0').toUpperCase()}` });
-      facts.push({ label: 'Flash Manufacturer', value: manufacturerHex });
-      facts.push({ label: 'Flash Device', value: deviceHex });
+      const manufacturerName = JEDEC_MANUFACTURERS[manufacturerCode];
+      facts.push({
+        label: 'Flash ID',
+        value: `0x${flashId.toString(16).padStart(6, '0').toUpperCase()}`,
+      });
+      facts.push({
+        label: 'Flash Manufacturer',
+        value: manufacturerName ? `${manufacturerName} (${manufacturerHex})` : manufacturerHex,
+      });
+      facts.push({
+        label: 'Flash Device',
+        value: deviceHex,
+      });
     }
 
     chipDetails.value = {
