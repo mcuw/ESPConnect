@@ -128,15 +128,20 @@
                     </v-chip-group>
                   </v-col>
                   <v-col v-if="chipDetails.facts?.length" cols="12">
-                    <div class="text-subtitle-2 text-medium-emphasis mb-2">Extra Details</div>
-                    <v-list density="compact" class="bg-transparent pa-0">
-                      <v-list-item
-                        v-for="fact in chipDetails.facts"
-                        :key="fact.label"
-                        :title="fact.label"
-                        :subtitle="fact.value"
-                      />
-                    </v-list>
+                    <div class="text-subtitle-2 text-medium-emphasis mb-3">Extra Details</div>
+                    <v-table density="compact" class="extra-details-table">
+                      <tbody>
+                        <tr v-for="fact in chipDetails.facts" :key="fact.label">
+                          <td class="extra-details-label">
+                            <div class="d-flex align-center gap-2">
+                              <v-icon v-if="fact.icon" size="16">{{ fact.icon }}</v-icon>
+                              <span>{{ fact.label }}</span>
+                            </div>
+                          </td>
+                          <td class="extra-details-value">{{ fact.value }}</td>
+                        </tr>
+                      </tbody>
+                    </v-table>
                   </v-col>
                 </v-row>
               </v-card-text>
@@ -397,6 +402,18 @@ const JEDEC_FLASH_PARTS = {
   },
 };
 
+const FACT_ICONS = {
+  Package: 'mdi-package-variant-closed',
+  Revision: 'mdi-update',
+  'Embedded Flash': 'mdi-memory',
+  'Embedded PSRAM': 'mdi-chip',
+  'Flash Vendor (eFuse)': 'mdi-factory',
+  'PSRAM Vendor (eFuse)': 'mdi-factory',
+  'Flash ID': 'mdi-barcode',
+  'Flash Manufacturer': 'mdi-domain',
+  'Flash Device': 'mdi-chip',
+};
+
 function formatBytes(bytes) {
   if (!Number.isFinite(bytes) || bytes <= 0) return null;
   const units = ['bytes', 'KB', 'MB', 'GB'];
@@ -655,32 +672,29 @@ async function connect() {
 
     const chipKey = chip?.CHIP_NAME || chipName;
     const facts = [];
+    const pushFact = (label, value) => {
+      if (!value) return;
+      facts.push({
+        label,
+        value,
+        icon: FACT_ICONS[label] ?? null,
+      });
+    };
 
-    const packageLabel = resolvePackageLabel(chipKey, packageVersion, chipRevision);
-    if (packageLabel) {
-      facts.push({ label: 'Package', value: packageLabel });
-    }
-
-    const revisionLabel = resolveRevisionLabel(chipKey, chipRevision, majorVersion, minorVersion);
-    if (revisionLabel) {
-      facts.push({ label: 'Revision', value: revisionLabel });
-    }
+    pushFact('Package', resolvePackageLabel(chipKey, packageVersion, chipRevision));
+    pushFact('Revision', resolveRevisionLabel(chipKey, chipRevision, majorVersion, minorVersion));
 
     const embeddedFlash = resolveEmbeddedFlash(chipKey, flashCap, flashVendor, featureList);
-    if (embeddedFlash) {
-      facts.push({ label: 'Embedded Flash', value: embeddedFlash });
-    }
+    pushFact('Embedded Flash', embeddedFlash);
 
     const embeddedPsram = resolveEmbeddedPsram(chipKey, psramCap, psramVendor, featureList);
-    if (embeddedPsram) {
-      facts.push({ label: 'Embedded PSRAM', value: embeddedPsram });
-    }
+    pushFact('Embedded PSRAM', embeddedPsram);
 
     if (flashVendor && !embeddedFlash) {
-      facts.push({ label: 'Flash Vendor (eFuse)', value: flashVendor });
+      pushFact('Flash Vendor (eFuse)', flashVendor);
     }
     if (psramVendor && !embeddedPsram) {
-      facts.push({ label: 'PSRAM Vendor (eFuse)', value: psramVendor });
+      pushFact('PSRAM Vendor (eFuse)', psramVendor);
     }
 
     if (typeof flashId === 'number' && !Number.isNaN(flashId)) {
@@ -698,27 +712,18 @@ async function connect() {
       const capacityBytes = Number.isInteger(capacityCode) ? 2 ** capacityCode : null;
       const formattedCapacity = capacityBytes ? formatBytes(capacityBytes) : null;
 
-      facts.push({
-        label: 'Flash ID',
-        value: `0x${flashId.toString(16).padStart(6, '0').toUpperCase()}`,
-      });
-      facts.push({
-        label: 'Flash Manufacturer',
-        value: manufacturerName ? `${manufacturerName} (${manufacturerHex})` : manufacturerHex,
-      });
+      pushFact('Flash ID', `0x${flashId.toString(16).padStart(6, '0').toUpperCase()}`);
+      pushFact(
+        'Flash Manufacturer',
+        manufacturerName ? `${manufacturerName} (${manufacturerHex})` : manufacturerHex
+      );
       if (deviceName || formattedCapacity) {
         const detail = formattedCapacity
           ? `${formattedCapacity}${deviceName ? ` — ${deviceName}` : ''}`
           : deviceName;
-        facts.push({
-          label: 'Flash Device',
-          value: detail || deviceHex,
-        });
+        pushFact('Flash Device', detail || deviceHex);
       } else {
-        facts.push({
-          label: 'Flash Device',
-          value: deviceHex,
-        });
+        pushFact('Flash Device', deviceHex);
       }
     }
 
@@ -874,5 +879,46 @@ onBeforeUnmount(() => {
   line-height: 1.45;
   white-space: pre-wrap;
   color: rgba(226, 232, 240, 0.9);
+}
+
+.extra-details-table {
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--v-theme-surface) 80%, transparent);
+  border: 1px solid color-mix(in srgb, var(--v-theme-on-surface) 12%, transparent);
+  overflow: hidden;
+}
+
+.extra-details-table :deep(table) {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.extra-details-table :deep(td) {
+  padding: 10px 12px;
+  border-bottom: 1px solid color-mix(in srgb, var(--v-theme-on-surface) 10%, transparent);
+}
+
+.extra-details-table :deep(tbody tr:last-child td) {
+  border-bottom: none;
+}
+
+.extra-details-label {
+  color: color-mix(in srgb, var(--v-theme-on-surface) 70%, transparent);
+  font-size: 0.85rem;
+  letter-spacing: 0.01em;
+}
+
+.extra-details-value {
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-align: right;
+  color: color-mix(in srgb, var(--v-theme-on-surface) 95%, transparent);
+  word-break: break-word;
+}
+
+@media (min-width: 960px) {
+  .extra-details-value {
+    text-align: left;
+  }
 }
 </style>
