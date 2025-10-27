@@ -262,7 +262,13 @@
                   <div
                     v-for="segment in partitionSegments"
                     :key="segment.key"
-                    :class="['partition-segment', { 'partition-segment--unused': segment.isUnused }]"
+                    :class="[
+                      'partition-segment',
+                      {
+                        'partition-segment--unused': segment.isUnused,
+                        'partition-segment--reserved': segment.isReserved
+                      }
+                    ]"
                     :style="{
                       width: segment.width,
                       backgroundColor: segment.color,
@@ -762,22 +768,85 @@ const UNUSED_SEGMENT_COLOR = '#374151';
 const UNUSED_SEGMENT_PATTERN =
   'repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.28) 0, rgba(255, 255, 255, 0.28) 8px, rgba(255, 255, 255, 0.08) 8px, rgba(255, 255, 255, 0.08) 16px)';
 
+const RESERVED_SEGMENTS = [
+  {
+    key: 'bootloader',
+    label: 'Bootloader',
+    offset: 0x0,
+    size: 0x8000,
+    color: '#546e7a',
+  },
+  {
+    key: 'partition-table',
+    label: 'Partition Table',
+    offset: 0x8000,
+    size: 0x1000,
+    color: '#78909c',
+  },
+];
+
 const partitionSegments = computed(() => {
   const sortedPartitions = [...partitionTable.value].sort((a, b) => a.offset - b.offset);
   const totalFlash = flashSizeBytes.value && flashSizeBytes.value > 0 ? flashSizeBytes.value : null;
   const segments = [];
   let cursor = 0;
 
+  const createGapSegments = (start, size) => {
+    if (size <= 0) return [];
+    const end = start + size;
+    const gapSegments = [];
+    let pointer = start;
+
+    const relevantReserved = RESERVED_SEGMENTS.filter(
+      block => block.offset < end && block.offset + block.size > start
+    ).sort((a, b) => a.offset - b.offset);
+
+    for (const block of relevantReserved) {
+      if (block.offset > pointer) {
+        const unusedEnd = Math.min(block.offset, end);
+        if (unusedEnd > pointer) {
+          gapSegments.push({
+            key: `unused-${pointer}-${unusedEnd}`,
+            kind: 'unused',
+            offset: pointer,
+            size: unusedEnd - pointer,
+          });
+          pointer = unusedEnd;
+        }
+      }
+
+      const blockStart = Math.max(pointer, block.offset);
+      const blockEnd = Math.min(end, block.offset + block.size);
+      if (blockEnd > blockStart) {
+        gapSegments.push({
+          key: `reserved-${block.key}-${blockStart}-${blockEnd}`,
+          kind: 'reserved',
+          offset: blockStart,
+          size: blockEnd - blockStart,
+          label: block.label,
+          color: block.color,
+        });
+        pointer = blockEnd;
+      }
+    }
+
+    if (pointer < end) {
+      gapSegments.push({
+        key: `unused-${pointer}-${end}`,
+        kind: 'unused',
+        offset: pointer,
+        size: end - pointer,
+      });
+    }
+
+    return gapSegments;
+  };
+
   for (const entry of sortedPartitions) {
     const start = entry.offset;
     if (start > cursor) {
       const gapSize = start - cursor;
-      segments.push({
-        key: `gap-${cursor}`,
-        kind: 'gap',
-        offset: cursor,
-        size: gapSize,
-      });
+      segments.push(...createGapSegments(cursor, gapSize));
     }
 
     segments.push({
@@ -796,21 +865,11 @@ const partitionSegments = computed(() => {
 
   const totalSpanCandidate = totalFlash ?? cursor;
   if (totalSpanCandidate > cursor) {
-    segments.push({
-      key: `gap-${cursor}`,
-      kind: 'gap',
-      offset: cursor,
-      size: totalSpanCandidate - cursor,
-    });
+    segments.push(...createGapSegments(cursor, totalSpanCandidate - cursor));
   }
 
   if (!segments.length && totalFlash) {
-    segments.push({
-      key: 'gap-0',
-      kind: 'gap',
-      offset: 0,
-      size: totalFlash,
-    });
+    segments.push(...createGapSegments(0, totalFlash));
   }
 
   const sizedSegments = segments.filter(segment => segment.size > 0);
@@ -824,7 +883,7 @@ const partitionSegments = computed(() => {
   return sizedSegments.map(segment => {
     const widthPercent = Math.max(2, (segment.size / totalSpan) * 100);
 
-    if (segment.kind === 'gap') {
+    if (segment.kind === 'unused') {
       const offsetHex = `0x${segment.offset.toString(16).toUpperCase()}`;
       const sizeText = formatBytes(segment.size) ?? `${segment.size} bytes`;
       return {
@@ -838,6 +897,25 @@ const partitionSegments = computed(() => {
         typeHex: '—',
         subtypeHex: '—',
         isUnused: true,
+        isReserved: false,
+      };
+    }
+
+    if (segment.kind === 'reserved') {
+      const offsetHex = `0x${segment.offset.toString(16).toUpperCase()}`;
+      const sizeText = formatBytes(segment.size) ?? `${segment.size} bytes`;
+      return {
+        key: segment.key,
+        label: segment.label,
+        width: `${widthPercent}%`,
+        color: segment.color,
+        backgroundImage: null,
+        sizeText,
+        offsetHex,
+        typeHex: '—',
+        subtypeHex: '—',
+        isUnused: false,
+        isReserved: true,
       };
     }
 
@@ -865,6 +943,7 @@ const partitionSegments = computed(() => {
       typeHex: `0x${entry.type.toString(16).toUpperCase()}`,
       subtypeHex: `0x${entry.subtype.toString(16).toUpperCase()}`,
       isUnused: false,
+      isReserved: false,
     };
   });
 });
@@ -1384,6 +1463,14 @@ onBeforeUnmount(() => {
 
 .partition-segment--unused .partition-meta {
   opacity: 0.8;
+}
+
+.partition-segment--reserved {
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.partition-segment--reserved .partition-meta {
+  opacity: 0.85;
 }
 
 .partition-label {
