@@ -408,6 +408,15 @@ const VENDOR_ALIASES = {
   AP_1v8: 'AP Memory (1.8 V)',
 };
 
+const PACKAGE_FORM_FACTORS = {
+  QFN56: '56-pin QFN (7 mm × 7 mm)',
+  QFN32: '32-pin QFN (5 mm × 5 mm)',
+  QFN28: '28-pin QFN',
+  QFN24: '24-pin QFN',
+  LGA56: '56-pad LGA module footprint',
+  QFN48: '48-pin QFN',
+};
+
 const FACT_ICONS = {
   Package: 'mdi-package-variant-closed',
   Revision: 'mdi-update',
@@ -704,7 +713,13 @@ async function connect() {
       });
     };
 
-    pushFact('Package', resolvePackageLabel(chipKey, packageVersion, chipRevision));
+    const packageLabel = resolvePackageLabel(chipKey, packageVersion, chipRevision);
+    pushFact('Package', packageLabel);
+    const packageMatch = packageLabel?.match(/\(([^)]+)\)$/);
+    if (packageMatch) {
+      const detail = PACKAGE_FORM_FACTORS[packageMatch[1]];
+      pushFact('Package Form Factor', detail);
+    }
     pushFact('Revision', resolveRevisionLabel(chipKey, chipRevision, majorVersion, minorVersion));
 
     const embeddedFlash = resolveEmbeddedFlash(chipKey, flashCap, flashVendor, featureList);
