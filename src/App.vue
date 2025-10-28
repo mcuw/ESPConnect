@@ -844,7 +844,9 @@ const statusLabel = computed(() =>
   connected.value ? statusDetails.value : 'No device connected. Choose a port to begin.'
 );
 
-const canFlash = computed(() => connected.value && firmwareBuffer.value && !flashInProgress.value);
+const canFlash = computed(
+  () => connected.value && Boolean(firmwareBuffer.value) && !flashInProgress.value
+);
 
 function appendLog(message, prefix = '[ui]') {
   const line = prefix ? `${prefix} ${message}` : message;
