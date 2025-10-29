@@ -181,7 +181,7 @@ const hasDistinctDescription = computed(() => {
 
 .device-avatar {
   background: color-mix(in srgb, var(--v-theme-primary) 28%, transparent);
-  color: color-mix(in srgb, white 92%, transparent);
+  color: color-mix(in srgb, var(--v-theme-primary) 85%, var(--v-theme-on-surface) 50%);
   box-shadow: 0 14px 30px rgba(15, 23, 42, 0.18);
 }
 
