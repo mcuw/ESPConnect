@@ -39,7 +39,7 @@
                 variant="outlined"
                 hide-details
                 class="status-select"
-                :disabled="busy"
+                :disabled="busy || flashInProgress || maintenanceBusy || baudChangeBusy || monitorActive"
               />
             </div>
             <v-spacer />
@@ -658,6 +658,8 @@ const flashOffset = ref('0x0');
 const eraseFlash = ref(false);
 const selectedPreset = ref(null);
 const selectedPartitionDownload = ref(null);
+const currentBaud = ref(DEFAULT_ROM_BAUD);
+const baudChangeBusy = ref(false);
 const maintenanceBusy = ref(false);
 const registerAddress = ref('0x0');
 const registerValue = ref('');
@@ -729,6 +731,50 @@ watch(
 function toggleTheme() {
   currentTheme.value = isDarkTheme.value ? 'light' : 'dark';
 }
+
+watch(selectedBaud, async (value, oldValue) => {
+  if (value === oldValue) {
+    return;
+  }
+  const parsed = Number.parseInt(value, 10);
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    appendLog('Ignoring invalid baud selection: ' + value, '[warn]');
+    if (oldValue != null) {
+      selectedBaud.value = oldValue;
+    } else {
+      selectedBaud.value = String(currentBaud.value);
+    }
+    return;
+  }
+  if (!connected.value || !loader.value) {
+    currentBaud.value = parsed;
+    return;
+  }
+  if (parsed === currentBaud.value) {
+    return;
+  }
+  if (busy.value || flashInProgress.value || maintenanceBusy.value || baudChangeBusy.value || monitorActive.value) {
+    appendLog('Cannot change baud while operations are running. Keeping ' + currentBaud.value.toLocaleString() + ' bps.', '[warn]');
+    selectedBaud.value = String(currentBaud.value);
+    return;
+  }
+  try {
+    baudChangeBusy.value = true;
+    appendLog('Changing baud to ' + parsed.toLocaleString() + ' bps...', '[debug]');
+    await loader.value.changeBaud(parsed);
+    currentBaud.value = parsed;
+    if (transport.value) {
+      transport.value.baudrate = parsed;
+    }
+    selectedBaud.value = String(parsed);
+    appendLog('Baud changed to ' + parsed.toLocaleString() + ' bps.', '[debug]');
+  } catch (error) {
+    appendLog('Baud change failed: ' + (error && error.message ? error.message : error), '[warn]');
+    selectedBaud.value = String(currentBaud.value);
+  } finally {
+    baudChangeBusy.value = false;
+  }
+});
 
 const partitionColorOverrides = {
   factory: '#f8b26a',
@@ -1404,6 +1450,8 @@ async function disconnectTransport() {
       monitorText.value = '';
       monitorAutoResetPerformed = false;
       resetMaintenanceState();
+      currentBaud.value = DEFAULT_ROM_BAUD;
+      baudChangeBusy.value = false;
   }
 }
 
@@ -1436,6 +1484,8 @@ async function connect() {
       terminal,
       enableTracing: DEBUG_SERIAL,
     });
+    currentBaud.value = baudrate;
+    transport.value.baudrate = baudrate;
 
     const chipName = await loader.value.main('default_reset');
     const chip = loader.value.chip;
@@ -1897,6 +1947,7 @@ async function downloadFlashRegion(offset, length, options = {}) {
   const displayLabel = label || 'flash region (' + offsetHex + ' / ' + lengthHex + ')';
   const activeBaudRaw =
     transport.value?.baudrate ||
+    currentBaud.value ||
     Number.parseInt(selectedBaud.value, 10) ||
     DEFAULT_ROM_BAUD;
   const baudNumber = Number.isFinite(activeBaudRaw) ? activeBaudRaw : DEFAULT_ROM_BAUD;
