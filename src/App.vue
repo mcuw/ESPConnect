@@ -1895,10 +1895,17 @@ async function downloadFlashRegion(offset, length, options = {}) {
   const offsetHex = '0x' + offset.toString(16).toUpperCase();
   const lengthHex = '0x' + length.toString(16).toUpperCase();
   const displayLabel = label || 'flash region (' + offsetHex + ' / ' + lengthHex + ')';
+  const activeBaudRaw =
+    transport.value?.baudrate ||
+    Number.parseInt(selectedBaud.value, 10) ||
+    DEFAULT_ROM_BAUD;
+  const baudNumber = Number.isFinite(activeBaudRaw) ? activeBaudRaw : DEFAULT_ROM_BAUD;
+  const baudLabel = baudNumber.toLocaleString() + ' bps';
+  appendLog('Downloading ' + displayLabel + ' at ' + baudLabel + '.', '[debug]');
 
   if (!suppressStatus) {
     flashReadStatusType.value = 'info';
-    flashReadStatus.value = 'Downloading ' + displayLabel + '...';
+    flashReadStatus.value = 'Downloading ' + displayLabel + ' @ ' + baudLabel + '...';
   }
 
   const buffer = await loader.value.readFlash(offset, length, (_packet, received, total) => {
@@ -1907,7 +1914,9 @@ async function downloadFlashRegion(offset, length, options = {}) {
       flashReadStatus.value =
         'Downloading ' +
         displayLabel +
-        ': ' +
+        ' @ ' +
+        baudLabel +
+        ' — ' +
         received.toLocaleString() +
         ' of ' +
         total.toLocaleString() +
@@ -1932,9 +1941,19 @@ async function downloadFlashRegion(offset, length, options = {}) {
 
   if (!suppressStatus) {
     flashReadStatusType.value = 'success';
-    flashReadStatus.value = 'Downloaded ' + finalName + ' (' + length.toLocaleString() + ' bytes).';
+    flashReadStatus.value =
+      'Downloaded ' +
+      finalName +
+      ' (' +
+      length.toLocaleString() +
+      ' bytes) @ ' +
+      baudLabel +
+      '.';
   }
-  appendLog('Downloaded ' + displayLabel + ' to ' + finalName + '.', '[debug]');
+  appendLog(
+    'Downloaded ' + displayLabel + ' to ' + finalName + ' @ ' + baudLabel + '.',
+    '[debug]'
+  );
   return finalName;
 }
 
