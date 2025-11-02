@@ -21,7 +21,7 @@
               </div>
             </div>
           </div>
-          <v-card class="device-summary-card" elevation="0" variant="flat">
+          <v-card class="device-summary-card" elevation="0" variant="flat" color="primary">
             <v-card-text class="device-summary-card__content">
               <div class="device-summary">
                 <div class="summary-block">
