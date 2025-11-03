@@ -687,6 +687,11 @@ const spiffsAgentRuntime = {
   encoder: new TextEncoder(),
   commandActive: false,
 };
+const spiffsAutoLoadAttempted = ref(false);
+const spiffsAutoDeployAttempted = ref(false);
+const spiffsAutoListPending = ref(false);
+let spiffsAutoPrepareInFlight = false;
+let spiffsAutoPrepareNeedsRetry = false;
 const SPIFFS_AGENT_LINE_TIMEOUT = 6000;
 const SPIFFS_AGENT_BASE64_CHUNK = 57;
 
@@ -783,11 +788,142 @@ const navigationItems = computed(() => [
   { title: 'Session Log', value: 'log', icon: 'mdi-clipboard-text-outline', disabled: false },
 ]);
 
+async function maybeEnsureSpiffsAgentReady() {
+  if (spiffsAutoPrepareInFlight) {
+    spiffsAutoPrepareNeedsRetry = true;
+    return;
+  }
+  if (activeTab.value !== 'spiffs' || !hasSpiffsPartition.value) {
+    return;
+  }
+  spiffsAutoPrepareInFlight = true;
+  try {
+    if (!spiffsAgent.loaded && !spiffsAgent.loading && !spiffsAutoLoadAttempted.value) {
+      spiffsAutoLoadAttempted.value = true;
+      await handleLoadSpiffsAgent();
+    }
+    const canAutoDeploy =
+      spiffsAgent.loaded &&
+      !spiffsAgent.running &&
+      !spiffsAgent.uploading &&
+      !spiffsAgent.busy &&
+      !spiffsAgent.commandActive &&
+      !maintenanceBusy.value &&
+      !busy.value &&
+      !flashInProgress.value &&
+      connected.value &&
+      Boolean(loader.value) &&
+      !spiffsAutoDeployAttempted.value;
+    if (canAutoDeploy) {
+      spiffsAutoDeployAttempted.value = true;
+      await handleDeploySpiffsAgent();
+    }
+    const canAutoList =
+      spiffsAutoListPending.value &&
+      spiffsAgent.running &&
+      !spiffsAgent.busy &&
+      !spiffsAgent.commandActive &&
+      !spiffsAgent.uploading &&
+      !maintenanceBusy.value &&
+      !busy.value &&
+      !flashInProgress.value &&
+      !spiffsAutoDeployAttempted.value;
+    if (canAutoList) {
+      try {
+        await handleListSpiffsFiles({ silent: false });
+      } finally {
+        spiffsAutoListPending.value = false;
+      }
+    }
+  } finally {
+    spiffsAutoPrepareInFlight = false;
+    if (spiffsAutoPrepareNeedsRetry) {
+      spiffsAutoPrepareNeedsRetry = false;
+      void maybeEnsureSpiffsAgentReady();
+    }
+  }
+}
+
+function scheduleSpiffsAutoPrepare() {
+  if (activeTab.value === 'spiffs' && hasSpiffsPartition.value) {
+    void maybeEnsureSpiffsAgentReady();
+  }
+}
+
 watch(hasSpiffsPartition, available => {
   if (!available && activeTab.value === 'spiffs') {
     activeTab.value = 'flash';
+    return;
+  }
+  if (available) {
+    scheduleSpiffsAutoPrepare();
   }
 });
+
+watch(activeTab, value => {
+  if (value === 'spiffs') {
+    spiffsAutoListPending.value = true;
+    spiffsAutoLoadAttempted.value = false;
+    spiffsAutoDeployAttempted.value = false;
+    scheduleSpiffsAutoPrepare();
+  } else {
+    spiffsAutoListPending.value = false;
+  }
+});
+
+watch(connected, isConnected => {
+  if (!isConnected) {
+    spiffsAutoDeployAttempted.value = false;
+    if (activeTab.value === 'spiffs') {
+      spiffsAutoListPending.value = true;
+    }
+  }
+  scheduleSpiffsAutoPrepare();
+});
+
+watch(() => loader.value, loaderInstance => {
+  if (!loaderInstance) {
+    spiffsAutoDeployAttempted.value = false;
+  }
+  scheduleSpiffsAutoPrepare();
+});
+
+watch(() => spiffsAgent.loaded, loaded => {
+  if (!loaded) {
+    spiffsAutoLoadAttempted.value = false;
+  }
+});
+
+watch(() => spiffsAgent.busy, busyState => {
+  if (!busyState) {
+    scheduleSpiffsAutoPrepare();
+  }
+});
+
+watch(() => spiffsAgent.commandActive, commandActive => {
+  if (!commandActive) {
+    scheduleSpiffsAutoPrepare();
+  }
+});
+
+watch(busy, isBusy => {
+  if (!isBusy) {
+    scheduleSpiffsAutoPrepare();
+  }
+});
+
+watch(maintenanceBusy, isMaintenanceBusy => {
+  if (!isMaintenanceBusy) {
+    scheduleSpiffsAutoPrepare();
+  }
+});
+
+watch(flashInProgress, inProgress => {
+  if (!inProgress) {
+    scheduleSpiffsAutoPrepare();
+  }
+});
+
 const resourceLinks = [
   {
     title: 'Tutorial',
@@ -2909,9 +3045,16 @@ async function handleDeploySpiffsAgent() {
       '[warn]'
     );
     queueMicrotask(() => {
-      handleListSpiffsFiles({ silent: true }).catch(error => {
-        appendLog(`SPIFFS agent auto-refresh failed: ${error?.message || error}`, '[debug]');
-      });
+      const shouldBeSilent = !spiffsAutoListPending.value;
+      handleListSpiffsFiles({ silent: shouldBeSilent })
+        .catch(error => {
+          appendLog(`SPIFFS agent auto-refresh failed: ${error?.message || error}`, '[debug]');
+        })
+        .finally(() => {
+          if (!shouldBeSilent) {
+            spiffsAutoListPending.value = false;
+          }
+        });
     });
   } catch (error) {
     spiffsAgent.running = false;
