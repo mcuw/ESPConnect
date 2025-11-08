@@ -187,11 +187,10 @@
           </div>
           <v-data-table
           :headers="fileTableHeaders"
-          :items="files"
+          :items="filteredFiles"
           item-key="name"
           v-model:items-per-page="filesPerPage"
           v-model:page="filesPage"
-          :search="fileSearch"
           :items-per-page-options="filesPerPageOptions"
           density="comfortable"
           class="spiffs-table mt-4"
@@ -352,7 +351,7 @@ const usagePercent = computed(() => {
 const dragActive = ref(false);
 const autoUploadPending = ref(false);
 const filteredFiles = computed(() => {
-  const query = fileSearch.value.trim().toLowerCase();
+  const query = (fileSearch.value || '').trim().toLowerCase();
   if (!query) {
     return props.files;
   }
