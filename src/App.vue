@@ -96,7 +96,7 @@
             </v-window-item>
 
             <v-window-item value="littlefs">
-              <LittleFsTools v-if="connected && littleFsAvailable" />
+              <LittleFsTools v-if="connected && littleFsAvailable" :partitions="littleFsPartitions" />
               <DisconnectedState v-else icon="mdi-alpha-l-circle-outline" :min-height="420"
                 subtitle="Connect to an ESP32 with a LittleFS partition to use these tools." />
             </v-window-item>
