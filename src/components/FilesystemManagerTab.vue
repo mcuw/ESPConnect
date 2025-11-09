@@ -266,7 +266,7 @@ const uploadFile = ref(null);
 const dropQueue = ref([]);
 const restoreInput = ref(null);
 const fileSearch = ref('');
-const filesPerPage = ref(10);
+const filesPerPage = ref(25);
 const filesPage = ref(1);
 const fileTypeFilter = ref('all');
 const fsLabel = computed(() => (props.fsLabel && props.fsLabel.trim()) || 'SPIFFS');
