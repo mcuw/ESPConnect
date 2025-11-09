@@ -58,18 +58,18 @@
 
     <v-card variant="tonal">
       <v-card-title class="d-flex align-center justify-space-between">
-        <span class="text-subtitle-1">Files</span>
+        <span>Files</span>
         <v-chip v-if="dirty" color="warning" size="small" variant="elevated">
           Unsaved changes
         </v-chip>
       </v-card-title>
       <v-card-text>
         <div v-if="usage?.capacityBytes" class="filesystem-usage">
-          <div class="filesystem-usage__labels">
-            <span>Used {{ formatSize(usage.usedBytes) }} / {{ formatSize(usage.capacityBytes) }}</span>
-            <span>{{ usagePercent }}%</span>
+          <div class="">
+            <span>Used {{ usagePercent }}% ({{ formatSize(usage.usedBytes) }} / {{ formatSize(usage.capacityBytes) }})</span>
+            <span></span>
           </div>
-          <v-progress-linear :model-value="usagePercent" height="8" rounded color="primary" />
+          <v-progress-linear :model-value="usagePercent" height="15" rounded color="primary" />
           <div class="text-caption text-medium-emphasis">
             Free {{ formatSize(usage.freeBytes) }}
           </div>
