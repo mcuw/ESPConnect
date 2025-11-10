@@ -15,119 +15,93 @@
     </v-card>
   </div>
   <div v-else class="partition-view">
-    <v-alert
-      v-if="showUnusedAlert"
-      type="warning"
-      variant="tonal"
-      class="unused-alert"
-    >
-      <div>
-        Unused flash detected - about {{ unusedReadable }} ({{ unusedBytesDisplay }} bytes) is reclaimable.
-      </div>
-      <div>
-        See the
-        <a
-          href="https://youtu.be/EuHxodrye6E"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          partition tutorial
-        </a>
-        or try the
-        <a
-          href="https://thelastoutpostworkshop.github.io/microcontroller_devkit/esp32partitionbuilder/"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          ESP32 partition builder
-        </a>.
-      </div>
-    </v-alert>
-
-    <div class="partition-map">
-      <VTooltip
-        v-for="segment in partitionSegments"
-        :key="segment.key"
-        location="top"
-        :open-delay="120"
-        transition="fade-transition"
-      >
-        <template #activator="{ props }">
-          <div
-            v-bind="props"
-            :class="[
+    <v-card variant="tonal" prepend-icon="mdi-table">
+      <template v-slot:title>
+        <span class="font-weight-black">Partitions</span>
+      </template>
+      <v-alert v-if="showUnusedAlert" type="warning" variant="tonal" class="unused-alert">
+        <div>
+          Unused flash detected - about {{ unusedReadable }} ({{ unusedBytesDisplay }} bytes) is reclaimable.
+        </div>
+        <div>
+          See the
+          <a href="https://youtu.be/EuHxodrye6E" target="_blank" rel="noopener noreferrer">
+            partition tutorial
+          </a>
+          or try the
+          <a href="https://thelastoutpostworkshop.github.io/microcontroller_devkit/esp32partitionbuilder/"
+            target="_blank" rel="noopener noreferrer">
+            ESP32 partition builder
+          </a>.
+        </div>
+      </v-alert>
+      <div class="partition-map">
+        <VTooltip v-for="segment in partitionSegments" :key="segment.key" location="top" :open-delay="120"
+          transition="fade-transition">
+          <template #activator="{ props }">
+            <div v-bind="props" :class="[
               'partition-segment',
               {
                 'partition-segment--unused': segment.isUnused,
                 'partition-segment--reserved': segment.isReserved,
               },
-            ]"
-            :style="{
+            ]" :style="{
               width: segment.width,
               flexBasis: segment.width,
               backgroundColor: segment.color,
               backgroundImage: segment.backgroundImage || undefined,
-            }"
-          >
-            <span v-if="segment.showLabel" class="partition-label">
-              {{ segment.label || 'Unnamed' }}
-            </span>
-            <span v-if="segment.showMeta" class="partition-meta">
-              {{ segment.sizeText }} - {{ segment.offsetHex }}
-            </span>
-          </div>
-        </template>
-        <template #default>
-          <div class="partition-tooltip">
-            <div class="partition-tooltip__title">{{ segment.label || 'Unnamed' }}</div>
-            <div
-              v-for="line in segment.tooltipLines"
-              :key="line"
-              class="partition-tooltip__line"
-            >
-              {{ line }}
+            }">
+              <span v-if="segment.showLabel" class="partition-label">
+                {{ segment.label || 'Unnamed' }}
+              </span>
+              <span v-if="segment.showMeta" class="partition-meta">
+                {{ segment.sizeText }} - {{ segment.offsetHex }}
+              </span>
             </div>
-          </div>
-        </template>
-      </VTooltip>
-    </div>
-
-    <v-table density="comfortable" class="mt-4">
-      <thead>
-        <tr>
-          <th>Label</th>
-          <th>Type</th>
-          <th>Subtype</th>
-          <th>Offset</th>
-          <th>Size</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr
-          v-for="entry in formattedPartitions"
-          :key="entry.offset"
-          class="partition-table-row"
-        >
-          <td>
-            <div class="partition-table-label">
-              <span
-                class="partition-color-pip"
-                :style="{
+          </template>
+          <template #default>
+            <div class="partition-tooltip">
+              <div class="partition-tooltip__title">{{ segment.label || 'Unnamed' }}</div>
+              <div v-for="line in segment.tooltipLines" :key="line" class="partition-tooltip__line">
+                {{ line }}
+              </div>
+            </div>
+          </template>
+        </VTooltip>
+      </div>
+      <v-table density="comfortable" class="mt-4">
+        <thead>
+          <tr>
+            <th>Label</th>
+            <th>Type</th>
+            <th>Subtype</th>
+            <th>Offset</th>
+            <th>Size</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="entry in formattedPartitions" :key="entry.offset" class="partition-table-row">
+            <td>
+              <div class="partition-table-label">
+                <span class="partition-color-pip" :style="{
                   backgroundColor: entry.color,
                   backgroundImage: entry.backgroundImage || undefined,
-                }"
-              ></span>
-              <span>{{ entry.label || 'Unnamed' }}</span>
-            </div>
-          </td>
-          <td>{{ entry.typeLabel }}</td>
-          <td>{{ entry.subtypeLabel }}</td>
-          <td>{{ entry.offsetHex }}</td>
-          <td>{{ entry.sizeText }}</td>
-        </tr>
-      </tbody>
-    </v-table>
+                }"></span>
+                <span>{{ entry.label || 'Unnamed' }}</span>
+              </div>
+            </td>
+            <td>{{ entry.typeLabel }}</td>
+            <td>{{ entry.subtypeLabel }}</td>
+            <td>{{ entry.offsetHex }}</td>
+            <td>{{ entry.sizeText }}</td>
+          </tr>
+        </tbody>
+      </v-table>
+    </v-card>
+
   </div>
+
+
 </template>
 
 <script setup>
@@ -328,4 +302,3 @@ const unusedBytesDisplay = computed(() =>
   text-decoration: underline;
 }
 </style>
-
