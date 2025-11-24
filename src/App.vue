@@ -5098,6 +5098,10 @@ async function connect() {
       : typeof featuresRaw === 'string'
         ? featuresRaw.split(/,\s*/)
         : [];
+    const hasOctalFlash =
+      featureList.some(
+        feature => typeof feature === 'string' && feature.toUpperCase().includes('OCTAL')
+      );
     let flashBytesValue = null;
     let flashLabelSuffix = '';
     if (typeof flashSizeKb === 'number' && flashSizeKb > 0) {
@@ -5124,6 +5128,28 @@ async function connect() {
             '[warn]'
           );
           break;
+        }
+      }
+      if (
+        !flashBytesValue &&
+        hasOctalFlash &&
+        Number.isInteger(capacityCodeRaw) &&
+        capacityCodeRaw >= 0x30 &&
+        capacityCodeRaw <= 0x3f
+      ) {
+        const mappedCapacityCode = capacityCodeRaw - 0x20; // vendor-specific octal ID codes sit +0x20 above standard
+        const fallbackFlashBytes = Math.pow(2, mappedCapacityCode);
+        if (Number.isFinite(fallbackFlashBytes) && fallbackFlashBytes > 0) {
+          flashBytesValue = fallbackFlashBytes;
+          flashLabelSuffix = ' (via octal RDID)';
+          appendLog(
+            `Flash size detection fallback: mapped octal capacity code 0x${capacityCodeRaw
+              .toString(16)
+              .toUpperCase()} -> 0x${mappedCapacityCode
+              .toString(16)
+              .toUpperCase()} (${formatBytes(fallbackFlashBytes)}).`,
+            '[warn]'
+          );
         }
       }
     }
