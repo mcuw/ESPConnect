@@ -590,236 +590,26 @@ import {
   SUPPORTED_VENDORS,
   TIMEOUT_CONNECT,
 } from './constants/serial';
+import {
+  APP_BASE_URL,
+  APP_DESCRIPTOR_LENGTH,
+  APP_DESCRIPTOR_MAGIC,
+  APP_IMAGE_HEADER_MAGIC,
+  APP_SCAN_LENGTH,
+  APP_VERSION,
+  FATFS_WASM_ENTRY,
+  LITTLEFS_MODULE_CACHE_KEY,
+  LITTLEFS_WASM_ENTRY,
+  OTA_SELECT_ENTRY_SIZE,
+  asciiDecoder,
+} from './constants/app';
+import { PACKAGE_LABELS, ECO_LABELS, EMBEDDED_FLASH_CAPACITY, EMBEDDED_PSRAM_CAPACITY, PACKAGE_FORM_FACTORS } from './constants/chipLabels';
+import { JEDEC_FLASH_PARTS, JEDEC_MANUFACTURERS, VENDOR_ALIASES } from './constants/flashIds';
+import { USB_PRODUCT_NAMES, USB_VENDOR_NAMES } from './constants/usb';
+import { FACT_DISPLAY_ORDER, FACT_GROUP_CONFIG, FACT_ICONS } from './constants/deviceFacts';
 
-const APP_VERSION = '1.03';
-const APP_BASE_URL = (import.meta.env?.BASE_URL ?? '/').replace(/\/+$/, '/') || '/';
-const LITTLEFS_WASM_ENTRY = `${APP_BASE_URL}wasm/littlefs/index.js`;
-const FATFS_WASM_ENTRY = `${APP_BASE_URL}wasm/fatfs/index.js`;
-const LITTLEFS_MODULE_CACHE_KEY =
-  import.meta.env?.DEV ?
-    `dev-${Date.now().toString(36)}` :
-    APP_VERSION;
-
-const PACKAGE_LABELS = {
-  ESP32: pkgVersion =>
-  ({
-    0: 'ESP32-D0WDQ6',
-    1: 'ESP32-D0WD',
-    2: 'ESP32-D2WD',
-    4: 'ESP32-U4WDH',
-    5: 'ESP32-PICO-D4',
-    6: 'ESP32-PICO-V3-02',
-  }[pkgVersion] ?? null),
-  'ESP32-C3': pkgVersion =>
-  ({
-    0: 'ESP32-C3 (QFN32)',
-    1: 'ESP8685 (QFN28)',
-    2: 'ESP32-C3 (AZ QFN32)',
-    3: 'ESP8686 (QFN24)',
-  }[pkgVersion] ?? null),
-  'ESP32-S3': pkgVersion =>
-  ({
-    0: 'ESP32-S3 (QFN56)',
-    1: 'ESP32-S3-PICO-1 (LGA56)',
-  }[pkgVersion] ?? null),
-  'ESP32-S2': pkgVersion =>
-  ({
-    0: 'ESP32-S2',
-    1: 'ESP32-S2FH2',
-    2: 'ESP32-S2FH4',
-  }[pkgVersion] ?? null),
-};
-
-const ECO_LABELS = {
-  0: 'ECO0',
-  1: 'ECO1',
-  2: 'ECO2',
-  3: 'ECO3',
-};
-
-const EMBEDDED_FLASH_CAPACITY = {
-  'ESP32-C3': {
-    1: '4MB',
-    2: '2MB',
-    3: '1MB',
-    4: '8MB',
-  },
-  'ESP32-S3': {
-    1: '8MB',
-    2: '4MB',
-  },
-  'ESP32-S2': {
-    1: '2MB',
-    2: '4MB',
-  },
-};
-
-const EMBEDDED_PSRAM_CAPACITY = {
-  'ESP32-S3': {
-    1: '8MB',
-    2: '2MB',
-  },
-  'ESP32-S2': {
-    1: '2MB',
-    2: '4MB',
-  },
-};
-
-const APP_IMAGE_HEADER_MAGIC = 0xe9;
-const APP_DESCRIPTOR_MAGIC = 0xabcd5432;
-const APP_DESCRIPTOR_LENGTH = 0x100;
-const APP_SCAN_LENGTH = 0x10000; // 64 KB
-const OTA_SELECT_ENTRY_SIZE = 32;
-const asciiDecoder = new TextDecoder('utf-8');
 let littlefsModulePromise = null;
 let fatfsModulePromise = null;
-
-const JEDEC_MANUFACTURERS = {
-  0x01: 'Spansion / Cypress',
-  0x04: 'Fujitsu',
-  0x1c: 'Eon / Puya',
-  0x20: 'Micron / Numonyx',
-  0x37: 'AMIC',
-  0x40: 'Zbit Semiconductor',
-  0x41: 'Intel',
-  0x45: 'XMC',
-  0x62: 'SST',
-  0x68: 'Atmel / Adesto',
-  0x9d: 'ISSI',
-  0x9f: 'ESMT',
-  0xa1: 'Intel (legacy)',
-  0xbf: 'Microchip',
-  0xc2: 'Macronix',
-  0xc8: 'GigaDevice',
-  0xc9: 'GigaDevice',
-  0xcd: 'GigaDevice',
-  0xd5: 'ESMT',
-  0xef: 'Winbond',
-  0xff: 'XTX Technology',
-};
-
-const JEDEC_FLASH_PARTS = {
-  0xef: {
-    0x4014: 'Winbond W25Q80 (8 Mbit)',
-    0x4015: 'Winbond W25Q16 (16 Mbit)',
-    0x4016: 'Winbond W25Q32 (32 Mbit)',
-    0x4017: 'Winbond W25Q64 (64 Mbit)',
-    0x4018: 'Winbond W25Q128 (128 Mbit)',
-    0x4019: 'Winbond W25Q256 (256 Mbit)',
-  },
-  0xc2: {
-    0x4014: 'Macronix MX25L8006 (8 Mbit)',
-    0x4015: 'Macronix MX25L1606 (16 Mbit)',
-    0x4016: 'Macronix MX25L3206 (32 Mbit)',
-    0x4017: 'Macronix MX25L6406 (64 Mbit)',
-    0x4018: 'Macronix MX25L12835 (128 Mbit)',
-  },
-  0xc8: {
-    0x4014: 'GigaDevice GD25Q80 (8 Mbit)',
-    0x4015: 'GigaDevice GD25Q16 (16 Mbit)',
-    0x4016: 'GigaDevice GD25Q32 (32 Mbit)',
-    0x4017: 'GigaDevice GD25Q64 (64 Mbit)',
-    0x4018: 'GigaDevice GD25Q128 (128 Mbit)',
-    0x4019: 'GigaDevice GD25Q256 (256 Mbit)',
-  },
-  0xbf: {
-    0x2541: 'Microchip SST26VF016B (16 Mbit)',
-  },
-};
-
-const VENDOR_ALIASES = {
-  AP_3v3: 'AP Memory 3.3 V',
-  AP_1v8: 'AP Memory 1.8 V',
-};
-
-const USB_VENDOR_NAMES = {
-  0x303a: 'Espressif',
-  0x1a86: 'WCH (CH34x)',
-  0x10c4: 'Silicon Labs (CP210x)',
-  0x0403: 'FTDI',
-};
-
-const USB_PRODUCT_NAMES = {
-  '1A86:55D3': 'CH343 Bridge',
-  '1A86:7523': 'CH340 USB-Serial',
-  '303A:1001': 'USB JTAG/Serial',
-  '303A:4001': 'ESP32-S3 DevKit',
-  '303A:4002': 'USB JTAG/Serial (CDC)',
-  '10C4:EA60': 'CP210x USB-Serial',
-  '0403:6001': 'FT232R USB UART',
-};
-
-const PACKAGE_FORM_FACTORS = {
-  QFN56: '56-pin QFN (7 mm x 7 mm)',
-  QFN32: '32-pin QFN (5 mm x 5 mm)',
-  QFN28: '28-pin QFN',
-  QFN24: '24-pin QFN',
-  LGA56: '56-pad LGA module footprint',
-  QFN48: '48-pin QFN',
-};
-
-const FACT_ICONS = {
-  'Chip Variant': 'mdi-chip',
-  Revision: 'mdi-update',
-  'Embedded Flash': 'mdi-memory',
-  'Embedded PSRAM': 'mdi-chip',
-  'Flash Vendor (eFuse)': 'mdi-factory',
-  'PSRAM Vendor (eFuse)': 'mdi-factory',
-  'Flash ID': 'mdi-barcode',
-  'Flash Manufacturer': 'mdi-domain',
-  'Flash Device': 'mdi-chip',
-  'Package Form Factor': 'mdi-package-variant-closed',
-  'USB Bridge': 'mdi-usb-port',
-  'Connection Baud': 'mdi-speedometer',
-  'eFuse Block Version': 'mdi-shield-key',
-};
-
-const FACT_DISPLAY_ORDER = [
-  'Chip Variant',
-  'Package Form Factor',
-  'Revision',
-  'Embedded Flash',
-  'Embedded PSRAM',
-  'Flash ID',
-  'Flash Manufacturer',
-  'Flash Device',
-  'Flash Vendor (eFuse)',
-  'PSRAM Vendor (eFuse)',
-  'eFuse Block Version',
-  'USB Bridge',
-  'Connection Baud',
-];
-
-const FACT_GROUP_CONFIG = [
-  {
-    title: 'Package & Revision',
-    icon: 'mdi-chip',
-    labels: ['Chip Variant', 'Package Form Factor', 'Revision'],
-  },
-  {
-    title: 'Embedded Memory',
-    icon: 'mdi-memory',
-    labels: [
-      'Embedded Flash',
-      'Embedded PSRAM',
-      'Flash ID',
-      'Flash Manufacturer',
-      'Flash Device',
-      'Flash Vendor (eFuse)',
-      'PSRAM Vendor (eFuse)',
-    ],
-  },
-  {
-    title: 'Security',
-    icon: 'mdi-shield-key-outline',
-    labels: ['eFuse Block Version'],
-  },
-  {
-    title: 'Connection',
-    icon: 'mdi-usb-port',
-    labels: ['USB Bridge', 'Connection Baud'],
-  },
-];
 
 function sortFacts(facts) {
   return [...facts].sort((a, b) => {
