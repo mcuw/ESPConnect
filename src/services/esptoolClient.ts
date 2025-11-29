@@ -1,4 +1,5 @@
-import { ESPLoader, Transport } from 'esptool-js';
+import { ESPLoader, Transport } from '../esptool_lib/index.js';
+import type { ESPLoader as EsptoolLoader, Transport as EsptoolTransport } from '../esptool_lib/index';
 import { DEBUG_SERIAL, DEFAULT_ROM_BAUD } from '../constants/serial';
 
 type StatusCallback = (message: string) => void;
@@ -13,8 +14,8 @@ export interface EsptoolOptions {
 }
 
 export interface EsptoolClient {
-  loader: ESPLoader;
-  transport: Transport;
+  loader: EsptoolLoader;
+  transport: EsptoolTransport;
   connectAndHandshake: () => Promise<{ chipName: string; chip: any }>;
   disconnect: () => Promise<void>;
   changeBaud: (baud: number) => Promise<void>;
