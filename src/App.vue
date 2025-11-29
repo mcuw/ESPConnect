@@ -477,6 +477,29 @@
           </v-card>
         </v-dialog>
 
+        <v-dialog v-model="showBusyDialog" width="420">
+          <v-card>
+            <v-card-title class="text-h6">
+              <v-icon start color="warning">mdi-lock-alert</v-icon>
+              Port Busy
+            </v-card-title>
+            <v-card-text>
+              <p class="text-body-2">
+                {{ busyDialogMessage || 'The selected serial port is busy. Close any other apps or tabs using it and try again.' }}
+              </p>
+              <p class="text-caption text-medium-emphasis">
+                If you just disconnected from another tool, wait a moment for the OS to release the port.
+              </p>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer />
+              <v-btn color="primary" variant="text" @click="showBusyDialog = false">
+                Got it
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+
         <v-dialog v-model="showBootDialog" width="420">
           <v-card>
             <v-card-title class="text-h6">
@@ -3134,6 +3157,8 @@ const resourceLinks = [
 ];
 const flashSizeBytes = ref(null);
 
+const showBusyDialog = ref(false);
+const busyDialogMessage = ref('');
 const showBootDialog = ref(false);
 const lastErrorMessage = ref('');
 
@@ -4597,6 +4622,8 @@ async function connect() {
   appendLog('Requesting serial port access...');
 
   try {
+    showBusyDialog.value = false;
+    busyDialogMessage.value = '';
     showBootDialog.value = false;
     currentPort.value = await requestSerialPort(SUPPORTED_VENDORS);
     connectDialogTimer = setTimeout(() => {
@@ -4872,15 +4899,25 @@ async function connect() {
     );
 
     connected.value = true;
+    showBusyDialog.value = false;
     showBootDialog.value = false;
     appendLog(`Connection established. Ready to flash.`);
   } catch (error) {
     if (error?.name === 'AbortError' || error?.name === 'NotFoundError') {
       appendLog('Port selection was cancelled.');
+    } else if (error?.name === 'NetworkError') {
+      const busyMessage = 'Selected port is busy or in use. Close other apps or tabs using it and try again.';
+      appendLog(busyMessage, '[warn]');
+      lastErrorMessage.value = busyMessage;
+      busyDialogMessage.value = busyMessage;
+      showBusyDialog.value = true;
+      showBootDialog.value = false;
     } else {
       const message = formatErrorMessage(error);
       appendLog(`Connection failed: ${message}`, '[error]');
       lastErrorMessage.value = message;
+      busyDialogMessage.value = '';
+      showBusyDialog.value = false;
       showBootDialog.value = true;
     }
     await disconnectTransport();
