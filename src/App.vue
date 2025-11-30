@@ -99,7 +99,7 @@
                 subtitle="Connect to an ESP32 to browse and edit SPIFFS files." />
             </v-window-item>
 
-            <v-window-item value="littlefs">
+              <v-window-item value="littlefs">
               <LittlefsManagerTab v-if="connected && littleFsAvailable" :partitions="littleFsPartitions"
                 :selected-partition-id="littlefsState.selectedId" :files="littlefsVisibleFiles"
                 :current-path="littlefsState.currentPath" :status="littlefsState.status"
@@ -1250,7 +1250,7 @@ async function handleLittlefsNavigateUp() {
 
 async function handleLittlefsNewFolder() {
   if (!littlefsState.client || littlefsState.readOnly) return;
-  const name = prompt('New folder name');
+  const name = arguments[0] || prompt('New folder name');
   if (!name) return;
   if (name.includes('/') || name.includes('..')) {
     showToast('Folder name cannot contain slashes or "..".', { color: 'warning' });

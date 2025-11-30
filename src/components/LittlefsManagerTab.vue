@@ -201,6 +201,25 @@
     </v-card>
 
     <input ref="restoreInput" type="file" class="d-none" @change="handleRestoreFile" />
+
+    <v-dialog v-model="newFolderDialog" max-width="420">
+      <v-card>
+        <v-card-title class="text-h6">
+          <v-icon start>mdi-folder-plus</v-icon>
+          New Folder
+        </v-card-title>
+        <v-card-text>
+          <v-text-field v-model="newFolderName" label="Folder name" autofocus clearable />
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn variant="text" @click="newFolderDialog = false">Cancel</v-btn>
+          <v-btn color="primary" variant="tonal" :disabled="!newFolderName?.trim()" @click="confirmNewFolder">
+            Create
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -341,6 +360,8 @@ watch([fileSearch, () => props.files.length], () => {
 const error = computed(() => props.error || null);
 const readOnly = computed(() => props.readOnly);
 const readOnlyMessage = computed(() => props.readOnlyReason || 'This filesystem is read-only.');
+const newFolderDialog = ref(false);
+const newFolderName = ref('');
 
 function formatSize(bytes) {
   if (!Number.isFinite(bytes)) return '';
@@ -403,7 +424,18 @@ function submitUpload() {
 }
 
 function promptNewFolder() {
-  emit('new-folder');
+  newFolderName.value = '';
+  newFolderDialog.value = true;
+}
+
+function confirmNewFolder() {
+  const name = newFolderName.value?.trim();
+  if (!name) {
+    newFolderDialog.value = false;
+    return;
+  }
+  emit('new-folder', name);
+  newFolderDialog.value = false;
 }
 </script>
 
