@@ -1218,13 +1218,15 @@ async function handleLittlefsUpload({ file, path, isDir }) {
   }
 }
 
-async function handleLittlefsDelete(name) {
+async function handleLittlefsDelete(path) {
   if (!littlefsState.client || littlefsState.readOnly) {
     return;
   }
-  const targetPath = normalizeFsPath(name);
+  const targetPath = normalizeFsPath(path);
+  const entry = littlefsState.files.find(f => normalizeFsPath(f.path) === targetPath);
+  const isDir = entry?.type === 'dir';
   const confirmed = await showConfirmation({
-    title: 'Delete File',
+    title: isDir ? 'Delete Folder' : 'Delete File',
     message: `Delete ${targetPath} from LittleFS? This cannot be undone.`,
     confirmText: 'Delete',
     destructive: true,
@@ -1235,9 +1237,11 @@ async function handleLittlefsDelete(name) {
   try {
     littlefsState.busy = true;
     if (typeof littlefsState.client.delete === 'function') {
-      littlefsState.client.delete(targetPath, { recursive: false });
-    } else if (typeof littlefsState.client.deleteFile === 'function') {
+      littlefsState.client.delete(targetPath, { recursive: true });
+    } else if (!isDir && typeof littlefsState.client.deleteFile === 'function') {
       littlefsState.client.deleteFile(targetPath);
+    } else {
+      throw new Error('Delete operation not supported by LittleFS client.');
     }
     await refreshLittlefsListing();
     markLittlefsDirty(`${targetPath} deleted. Save to persist.`);
