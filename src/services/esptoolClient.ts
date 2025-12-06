@@ -95,8 +95,15 @@ export type CompatibleLoader = ESPLoader & {
   writeReg: (addr: number, value: number, mask?: number, delayUs?: number) => Promise<void>;
   ui8ToBstr: (data: Uint8Array) => string;
   writeFlash: (options: WriteFlashOptions) => Promise<void>;
+  flashData: (
+    binaryData: ArrayBuffer,
+    updateProgress: (bytesWritten: number, totalBytes: number) => void,
+    offset?: number,
+    compress?: boolean
+  ) => Promise<void>;
   flashMd5sum: (addr: number, size: number) => Promise<string>;
   after: (mode?: string) => Promise<void>;
+  eraseFlash?: () => Promise<void>;
 };
 
 const MD5_TIMEOUT_PER_MB = 8000;

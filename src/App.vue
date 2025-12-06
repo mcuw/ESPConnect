@@ -3106,20 +3106,15 @@ async function handleSpiffsSave() {
 
 // Write a filesystem image to flash with progress callbacks.
 async function writeFilesystemImage(partition, image, options = {}) {
-  const { onProgress, label = 'filesystem', state } = options ?? {};
+  const { onProgress, label = 'filesystem', state, compress = true } = options ?? {};
   if (!loader.value) {
     throw new Error('Loader unavailable.');
   }
   await releaseTransportReader();
-  const dataString = loader.value.ui8ToBstr(image);
-  await loader.value.writeFlash({
-    fileArray: [{ data: dataString, address: partition.offset }],
-    flashSize: 'keep',
-    flashMode: 'keep',
-    flashFreq: 'keep',
-    eraseAll: false,
-    compress: true,
-    reportProgress: (_fileIndex, written, total) => {
+  const binary = image instanceof Uint8Array ? image : new Uint8Array(image);
+  await loader.value.flashData(
+    binary.buffer,
+    (written, total) => {
       const progressValue = total ? Math.min(100, Math.floor((written / total) * 100)) : 0;
       const statusLabel = `Writing ${label}... ${written.toLocaleString()} / ${total.toLocaleString()} bytes`;
       if (state) {
@@ -3132,7 +3127,9 @@ async function writeFilesystemImage(partition, image, options = {}) {
         total,
       });
     },
-  });
+    partition.offset,
+    compress
+  );
 }
 
 const FILESYSTEM_LOAD_CANCELLED_MESSAGE = 'Filesystem load cancelled by user';
@@ -5470,17 +5467,16 @@ async function flashFirmware() {
 
   try {
     const bytes = new Uint8Array(firmwareBuffer.value);
-    const dataString = loader.value.ui8ToBstr(bytes);
     const startTime = performance.now();
 
-    await loader.value.writeFlash({
-      fileArray: [{ data: dataString, address: offsetNumber }],
-      flashSize: 'keep',
-      flashMode: 'keep',
-      flashFreq: 'keep',
-      eraseAll: eraseFlash.value,
-      compress: true,
-      reportProgress: (_fileIndex, written, total) => {
+    if (eraseFlash.value && typeof loader.value.eraseFlash === 'function') {
+      flashProgressDialog.label = `Erasing flash @ ${flashBaudLabel}...`;
+      await loader.value.eraseFlash();
+    }
+
+    await loader.value.flashData(
+      bytes.buffer,
+      (written, total) => {
         if (flashCancelRequested.value) {
           throw new Error('Flash cancelled by user');
         }
@@ -5492,10 +5488,12 @@ async function flashFirmware() {
         const writtenLabel = written.toLocaleString();
         const totalLabel = total ? total.toLocaleString() : '';
         flashProgressDialog.label = total
-          ? `Flashing ${firmwareLabel} — ${writtenLabel} of ${totalLabel} bytes @ ${flashBaudLabel}`
-          : `Flashing ${firmwareLabel} — ${writtenLabel} bytes @ ${flashBaudLabel}`;
+          ? `Flashing ${firmwareLabel} - ${writtenLabel} of ${totalLabel} bytes @ ${flashBaudLabel}`
+          : `Flashing ${firmwareLabel} - ${writtenLabel} bytes @ ${flashBaudLabel}`;
       },
-    });
+      offsetNumber,
+      true
+    );
 
     await loader.value.after('hard_reset');
     const elapsed = ((performance.now() - startTime) / 1000).toFixed(1);
