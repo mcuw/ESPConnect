@@ -13,7 +13,14 @@
         <p>
           The application talks to the device over the Web Serial API, then exposes high-level tools for firmware
           flashing, partition management, filesystem editing, backup/restore workflows, as well as a session log and
-          serial monitor for troubleshooting. It is based on Jason2866’s WebSerial ESPTool https://github.com/Jason2866/WebSerial_ESPTool/tree/development
+          serial monitor for troubleshooting. It is based on Jason2866's
+          <a
+            href="https://github.com/Jason2866/WebSerial_ESPTool/tree/development"
+            target="_blank"
+            rel="noreferrer noopener"
+          >
+            WebSerial ESPTool
+          </a>.
         </p>
       </v-card-text>
     </v-card>
@@ -72,8 +79,8 @@
       </v-card-title>
       <v-card-text class="text-body-2">
         <p>
-          ESPConnect runs fully in your browser—there is no backend, account, or telemetry. Firmware files, backups, and
-          diagnostics stay local and only move when you download them yourself. Always flash firmware from trusted
+          ESPConnect runs fully in your browser -- there is no backend, account, or telemetry. Firmware files, backups,
+          and diagnostics stay local and only move when you download them yourself. Always flash firmware from trusted
           sources.
         </p>
       </v-card-text>
