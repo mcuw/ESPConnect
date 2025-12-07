@@ -487,7 +487,10 @@
             </v-card-title>
             <v-card-text>
               <p class="text-body-2">
-                {{ busyDialogMessage || 'The selected serial port is busy. Close any other apps or tabs using it and try again.' }}
+                {{
+                  busyDialogMessage ||
+                  ['The selected serial port is busy.', 'Close any other apps or tabs using it and try again.'].join(' ')
+                }}
               </p>
               <p class="text-caption text-medium-emphasis">
                 If you just disconnected from another tool, wait a moment for the OS to release the port.
@@ -526,7 +529,7 @@
         </v-dialog>
 
         <v-dialog v-model="showBootDialog" width="420">
-          <v-card >
+          <v-card>
             <v-card-title class="text-h6">
               <v-icon start color="warning">mdi-alert-circle-outline</v-icon>
               Connection Tips
@@ -616,7 +619,7 @@ import { InMemorySpiffsClient } from './utils/spiffs/spiffsClient';
 import { useFatfsManager, useLittlefsManager, useSpiffsManager } from './composables/useFilesystemManagers';
 import { useDialogs } from './composables/useDialogs';
 import { readPartitionTable } from './utils/partitions';
-import { createEsptoolClient,requestSerialPort } from './services/esptoolClient';
+import { createEsptoolClient, requestSerialPort } from './services/esptoolClient';
 import {
   SPIFFS_AUDIO_EXTENSIONS,
   SPIFFS_AUDIO_MIME_MAP,
