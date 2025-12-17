@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.0
+- started fork
+- remove electron
+- use pnpm as package manager
+
 ## 1.1.6-preview
 ### Improvement
 - Flash tools now refresh the partition table after full erase or firmware flashes so the partitions view stays accurate ([issue #104](https://github.com/thelastoutpostworkshop/ESPConnect/issues/104)).
