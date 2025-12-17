@@ -65,19 +65,19 @@ Follow installation instructions for your platform in the [latest release](https
 
 Development (Recommended for Contributors - Electron loads the Vite dev server):
 ```bash
-npm install
-npm run dev
+pnpm install
+pnpm dev
 # in another terminal:
-npm run start
+pnpm start
 ```
 
 ### 2. Web application Development Mode (Recommended for Contributors)
 
 ```bash
-git clone https://github.com/thelastoutpostworkshop/ESPConnect.git
+git clone https://github.com/mcuw/ESPConnect.git
 cd ESPConnect
-npm install
-npm run dev
+pnpm install
+pnpm dev
 ```
 ### 3. Run ESPConnect via Docker
 
@@ -88,14 +88,14 @@ docker run --rm -p 8080:80 espconnect
 ### 4. Run the Built Version Locally (Static Server)
 Step 1 — Build the App
 ```bash
-npm install
-npm run build
+pnpm install
+pnpm build
 ```
 Step 2 — Serve the dist/ Folder, you may use any of the following options:
 > Option A — Node “serve”
 ```bash
 cd dist
-npx serve .
+pnpx serve .
 ```
 > Option B — Python 3
 ```bash

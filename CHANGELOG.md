@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.10.0
+- started fork
+- remove electron
+- use pnpm as package manager
+
 ## 1.0.10
 - Added standalone electron app in release assets by Jason2866 ([PR #56](https://github.com/thelastoutpostworkshop/ESPConnect/pull/56)).
 - Fixed filesystem image flashing to pass an `ArrayBuffer` into `flashData` (avoids `ArrayBufferLike` / `SharedArrayBuffer` TypeScript warnings).
