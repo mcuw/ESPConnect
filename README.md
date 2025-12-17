@@ -1,6 +1,6 @@
 [<img src="https://github.com/thelastoutpostworkshop/images/blob/main/ESPConnect-github.png">](https://youtu.be/-nhDKzBxHiI)
 # ESPConnect
-<a href="https://www.buymeacoffee.com/thelastoutpostworkshop" target="_blank">
+<a href="https://www.buymeacoffee.com/vuongngo" target="_blank">
 <img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee">
 </a>
 
@@ -61,7 +61,7 @@ The tool cannot read partition tables or access SPIFFS/LittleFS, and advanced fe
 ESPConnect is a **pure in-browser web application** — no backend, no installation required, and all operations happen directly in your browser using Web Serial / WebUSB.
 
 ### 1. Run as a Desktop App (Electron)
-Follow installation instructions for your platform in the [latest release](https://github.com/thelastoutpostworkshop/ESPConnect/releases/latest) 
+Follow installation instructions for your platform in the [latest release](https://github.com/mcuw/ESPConnect/releases/latest) 
 
 Development (Recommended for Contributors - Electron loads the Vite dev server):
 ```bash
