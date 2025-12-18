@@ -4271,7 +4271,7 @@ const resourceLinks = computed(() => [
   },
   {
     title: t('resources.buyCoffee'),
-    href: 'https://buymeacoffee.com/thelastoutpostworkshop',
+    href: 'https://buymeacoffee.com/vuongngo',
     icon: 'mdi-coffee',
   },
   {
