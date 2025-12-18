@@ -3685,7 +3685,7 @@ const resourceLinks = [
   },
   {
     title: 'Buy Me a Coffee',
-    href: 'https://buymeacoffee.com/thelastoutpostworkshop',
+    href: 'https://buymeacoffee.com/vuongngo',
     icon: 'mdi-coffee',
   },
   {
