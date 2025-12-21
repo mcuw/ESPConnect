@@ -43,7 +43,7 @@
           <v-btn color="secondary" variant="text" :disabled="busy || maintenanceBusy"
             @click="emit('download-used-flash')">
             <v-icon start>mdi-content-save</v-icon>
-            Download Used Flash
+            Download Flash Backup
           </v-btn>
         </div>
       </div>
