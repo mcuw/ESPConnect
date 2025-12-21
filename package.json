@@ -12,8 +12,6 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "lint": "eslint . --ext .vue,.js,.ts",
-    "typecheck": "tsc --noEmit -p tsconfig.i18n.json",
     "start": "electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
@@ -36,15 +34,10 @@
     "@electron-forge/plugin-auto-unpack-natives": "^7.6.0",
     "@electron-forge/plugin-fuses": "^7.6.0",
     "@electron/fuses": "^1.8.0",
-    "@eslint/js": "^9.39.2",
     "@vitejs/plugin-vue": "^6.0.1",
     "electron": "^33.2.0",
-    "eslint": "^9.39.2",
-    "eslint-plugin-vue": "^10.6.2",
     "sass": "^1.80.0",
-    "typescript": "^5.9.3",
     "vite": "^7.1.12",
-    "vite-plugin-vuetify": "^2.0.3",
-    "vue-tsc": "^3.2.0"
+    "vite-plugin-vuetify": "^2.0.3"
   }
 }

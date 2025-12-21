@@ -15,17 +15,5 @@
     "isolatedModules": true,
     "types": ["vite/client"]
   },
-  "include": ["src/i18n/**/*", "src/main.js"],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "src/components",
-    "src/composables",
-    "src/constants",
-    "src/services",
-    "src/types",
-    "src/utils",
-    "src/wasm",
-    "src/App.vue"
-  ]
+  "include": ["src/**/*", "vite.config.js"]
 }
