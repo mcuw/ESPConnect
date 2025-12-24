@@ -1,6 +1,9 @@
 # Changelog
 
 ## 1.1.2-preview
+### Improvement
+- Add reconnect after flashing operations so the ROM has time to finalize 
+
 ### Internal
 - Remove unused legacy code that was needed for esptool-js
 ## 1.1.1
