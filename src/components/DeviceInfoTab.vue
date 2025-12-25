@@ -16,7 +16,7 @@
                 </span>
                 <span v-if="details.mac" class="device-chip-subline-item">
                   <v-icon size="20">mdi-wifi</v-icon>
-                  {{ details.mac }}
+                  {{ details.mac }} (MAC)
                 </span>
               </div>
             </div>

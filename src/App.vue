@@ -5732,11 +5732,8 @@ async function connect() {
       const detail = PACKAGE_FORM_FACTORS[packageMatch[1]];
       pushFact('Package Form Factor', detail);
     }
-    // if (macLabel && macLabel !== 'Unavailable') {
-    //   pushFact('MAC Address', macLabel);
-    // }
+
     pushFact('Revision', resolveRevisionLabel(esp.chipName, metadata.chipRevision, metadata.majorVersion, metadata.minorVersion));
-    // pushFact('Flash Size', flashLabel);
 
     const embeddedFlash = resolveEmbeddedFlash(esp.chipName, metadata.flashCap, metadata.flashVendor, featureList);
     pushFact('Embedded Flash', embeddedFlash);
