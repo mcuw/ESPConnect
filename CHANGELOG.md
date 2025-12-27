@@ -1,6 +1,9 @@
 # Changelog
 
 ## 1.1.3
+### Improvement
+- Session log now shows the version of tasmota-webserial-esptool package along with a timestamp
+
 ## 1.1.2
 ### Improvement
 - Internationalization: Migrated UI translations to the standard Vue I18n + Vuetify integration.
