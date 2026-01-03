@@ -1,0 +1,180 @@
+{
+  "steps": [
+    {
+      "type": "response",
+      "opcode": "ESP_SYNC",
+      "value": "0x20120707",
+      "data": "00000000"
+    },
+    {
+      "type": "response",
+      "opcode": "ESP_GET_SECURITY_INFO",
+      "value": "0x0",
+      "data": "00000000000000000000000c090000000000000000000000"
+    },
+    {
+      "type": "response",
+      "opcode": "ESP_READ_REG",
+      "value": "0x18956b4c",
+      "data": "00000000"
+    },
+    {
+      "type": "response",
+      "opcode": "ESP_READ_REG",
+      "value": "0x3485",
+      "data": "00000000"
+    },
+    {
+      "type": "response",
+      "opcode": "ESP_READ_REG",
+      "value": "0x0",
+      "data": "00000000"
+    },
+    {
+      "type": "response",
+      "opcode": "ESP_READ_REG",
+      "value": "0x2040000",
+      "data": "00000000"
+    },
+    {
+      "type": "response",
+      "opcode": "ESP_MEM_BEGIN",
+      "value": "0x2040000",
+      "data": "00000000"
+    },
+    {
+      "type": "response",
+      "opcode": "ESP_MEM_DATA",
+      "value": "0x2040000",
+      "data": "00000000"
+    },
+    {
+      "type": "response",
+      "opcode": "ESP_MEM_DATA",
+      "value": "0x2040000",
+      "data": "00000000"
+    },
+    {
+      "type": "response",
+      "opcode": "ESP_MEM_DATA",
+      "value": "0x2040000",
+      "data": "00000000"
+    },
+    {
+      "type": "response",
+      "opcode": "ESP_MEM_BEGIN",
+      "value": "0x2040000",
+      "data": "00000000"
+    },
+    {
+      "type": "response",
+      "opcode": "ESP_MEM_DATA",
+      "value": "0x2040000",
+      "data": "00000000"
+    },
+    {
+      "type": "response",
+      "opcode": "ESP_MEM_END",
+      "value": "0x2040000",
+      "data": "00000000"
+    },
+    {
+      "type": "raw",
+      "data": "4f484149"
+    },
+    {
+      "type": "response",
+      "opcode": "ESP_READ_REG",
+      "value": "0x80000000",
+      "data": "0000"
+    },
+    {
+      "type": "response",
+      "opcode": "ESP_READ_REG",
+      "value": "0x70000000",
+      "data": "0000"
+    },
+    {
+      "type": "response",
+      "opcode": "ESP_WRITE_REG",
+      "value": "0x0",
+      "data": "0000"
+    },
+    {
+      "type": "response",
+      "opcode": "ESP_WRITE_REG",
+      "value": "0x0",
+      "data": "0000"
+    },
+    {
+      "type": "response",
+      "opcode": "ESP_WRITE_REG",
+      "value": "0x0",
+      "data": "0000"
+    },
+    {
+      "type": "response",
+      "opcode": "ESP_WRITE_REG",
+      "value": "0x0",
+      "data": "0000"
+    },
+    {
+      "type": "response",
+      "opcode": "ESP_WRITE_REG",
+      "value": "0x0",
+      "data": "0000"
+    },
+    {
+      "type": "response",
+      "opcode": "ESP_READ_REG",
+      "value": "0x0",
+      "data": "0000"
+    },
+    {
+      "type": "response",
+      "opcode": "ESP_READ_REG",
+      "value": "0x1840c8",
+      "data": "0000"
+    },
+    {
+      "type": "response",
+      "opcode": "ESP_WRITE_REG",
+      "value": "0x0",
+      "data": "0000"
+    },
+    {
+      "type": "response",
+      "opcode": "ESP_WRITE_REG",
+      "value": "0x0",
+      "data": "0000"
+    },
+    {
+      "type": "response",
+      "opcode": "ESP_CHANGE_BAUDRATE",
+      "value": "0x0",
+      "data": "0000"
+    },
+    {
+      "type": "response",
+      "opcode": "ESP_GET_SECURITY_INFO",
+      "value": "0x0",
+      "data": "00000000000000000000000c09000000000000000000"
+    },
+    {
+      "type": "response",
+      "opcode": "ESP_READ_FLASH",
+      "value": "0x0",
+      "data": "0000"
+    },
+    {
+      "type": "raw",
+      "data": "aa5000000000010000000d00666163746f727900000000000000000000000000"
+    },
+    {
+      "type": "response",
+      "opcode": "ESP_SPI_FLASH_MD5",
+      "value": "0x0",
+      "data": "000102030405060708090a0b0c0d0e0f0000"
+    }
+  ]
+}

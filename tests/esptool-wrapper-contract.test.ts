@@ -111,6 +111,32 @@ describe("tasmota-webserial-esptool wrapper contract", () => {
     await port.close();
   });
 
+  it("reads flash data and returns md5 checksum", async () => {
+    const { client, port } = createClient("handshake-stub-s3-readflash", {
+      desiredBaud: 921600,
+    });
+
+    await client.connectAndHandshake();
+
+    const transcript = loadTranscript("handshake-stub-s3-readflash");
+    const rawHex = transcript.steps
+      .filter(
+        step => step.type === "raw" && step.data.length > 8,
+      )
+      .map(step => step.data.toLowerCase())
+      .join("");
+    const expectedSize = rawHex.length / 2;
+
+    const data = await client.loader.readFlash(0, expectedSize);
+    expect(Buffer.from(data).toString("hex")).toBe(rawHex);
+
+    const md5 = await client.flashMd5sum(0, expectedSize);
+    expect(md5).toBe("000102030405060708090a0b0c0d0e0f");
+
+    port.assertNoPendingSteps();
+    await port.close();
+  });
+
   it("syncWithStub reports reconnecting status and completes", async () => {
     const { client, port, statuses } = createClient("handshake-reconnect", {
       desiredBaud: 921600,

@@ -9,6 +9,7 @@ import {
   ESP_MEM_END,
   ESP_READ_FLASH,
   ESP_READ_REG,
+  ESP_SPI_FLASH_MD5,
   ESP_SYNC,
   ESP_WRITE_REG,
 } from "tasmota-webserial-esptool/dist/const.js";
@@ -44,6 +45,7 @@ const OPCODE_MAP: Record<string, number> = {
   ESP_MEM_BEGIN,
   ESP_MEM_DATA,
   ESP_MEM_END,
+  ESP_SPI_FLASH_MD5,
 };
 
 function resolveOpcode(opcode: string | number | undefined): number | undefined {
@@ -140,10 +142,13 @@ function slipDecode(frame: Uint8Array): number[] {
   throw new Error("Incomplete SLIP frame");
 }
 
-function decodeCommandOpcode(frame: Uint8Array): number {
+function decodeCommandOpcode(frame: Uint8Array): number | null {
   const payload = slipDecode(frame);
-  if (payload.length < 2) {
-    throw new Error("SLIP frame too short to decode opcode");
+  if (payload.length < 8) {
+    return null;
+  }
+  if (payload[0] !== 0x00) {
+    return null;
   }
   return payload[1];
 }
@@ -172,6 +177,9 @@ class TranscriptRunner {
 
   handleWrite(frame: Uint8Array): Uint8Array[] {
     const opcode = decodeCommandOpcode(frame);
+    if (opcode === null) {
+      return [];
+    }
 
     if (this.mode === "record") {
       this.recordedWrites.push(opcode);
