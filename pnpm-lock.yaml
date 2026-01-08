@@ -23,16 +23,16 @@ importers:
     devDependencies:
       '@vitejs/plugin-vue':
         specifier: ^6.0.3
-        version: 6.0.3(vite@7.3.0(sass@1.97.0))(vue@3.5.26)
+        version: 6.0.3(vite@7.3.0(sass@1.97.2))(vue@3.5.26)
       sass:
-        specifier: ^1.97.0
-        version: 1.97.0
+        specifier: ^1.97.2
+        version: 1.97.2
       vite:
         specifier: ^7.3.0
-        version: 7.3.0(sass@1.97.0)
+        version: 7.3.0(sass@1.97.2)
       vite-plugin-vuetify:
         specifier: ^2.1.2
-        version: 2.1.2(vite@7.3.0(sass@1.97.0))(vue@3.5.26)(vuetify@3.11.4)
+        version: 2.1.2(vite@7.3.0(sass@1.97.2))(vue@3.5.26)(vuetify@3.11.4)
 
 packages:
 
@@ -570,8 +570,8 @@ packages:
     engines: {node: '>=18.0.0', npm: '>=8.0.0'}
     hasBin: true
 
-  sass@1.97.0:
-    resolution: {integrity: sha512-KR0igP1z4avUJetEuIeOdDlwaUDvkH8wSx7FdSjyYBS3dpyX3TzHfAMO0G1Q4/3cdjcmi3r7idh+KCmKqS+KeQ==}
+  sass@1.97.2:
+    resolution: {integrity: sha512-y5LWb0IlbO4e97Zr7c3mlpabcbBtS+ieiZ9iwDooShpFKWXf62zz5pEPdwrLYm+Bxn1fnbwFGzHuCLSA9tBmrw==}
     engines: {node: '>=14.0.0'}
     hasBin: true
 
@@ -896,10 +896,10 @@ snapshots:
 
   '@types/estree@1.0.8': {}
 
-  '@vitejs/plugin-vue@6.0.3(vite@7.3.0(sass@1.97.0))(vue@3.5.26)':
+  '@vitejs/plugin-vue@6.0.3(vite@7.3.0(sass@1.97.2))(vue@3.5.26)':
     dependencies:
       '@rolldown/pluginutils': 1.0.0-beta.53
-      vite: 7.3.0(sass@1.97.0)
+      vite: 7.3.0(sass@1.97.2)
       vue: 3.5.26
 
   '@vue/compiler-core@3.5.26':
@@ -1100,7 +1100,7 @@ snapshots:
       '@rollup/rollup-win32-x64-msvc': 4.53.5
       fsevents: 2.3.3
 
-  sass@1.97.0:
+  sass@1.97.2:
     dependencies:
       chokidar: 4.0.3
       immutable: 5.1.4
@@ -1129,18 +1129,18 @@ snapshots:
 
   upath@2.0.1: {}
 
-  vite-plugin-vuetify@2.1.2(vite@7.3.0(sass@1.97.0))(vue@3.5.26)(vuetify@3.11.4):
+  vite-plugin-vuetify@2.1.2(vite@7.3.0(sass@1.97.2))(vue@3.5.26)(vuetify@3.11.4):
     dependencies:
       '@vuetify/loader-shared': 2.1.1(vue@3.5.26)(vuetify@3.11.4)
       debug: 4.4.3
       upath: 2.0.1
-      vite: 7.3.0(sass@1.97.0)
+      vite: 7.3.0(sass@1.97.2)
       vue: 3.5.26
       vuetify: 3.11.4(vite-plugin-vuetify@2.1.2)(vue@3.5.26)
     transitivePeerDependencies:
       - supports-color
 
-  vite@7.3.0(sass@1.97.0):
+  vite@7.3.0(sass@1.97.2):
     dependencies:
       esbuild: 0.27.2
       fdir: 6.5.0(picomatch@4.0.3)
@@ -1150,7 +1150,7 @@ snapshots:
       tinyglobby: 0.2.15
     optionalDependencies:
       fsevents: 2.3.3
-      sass: 1.97.0
+      sass: 1.97.2
 
   vue@3.5.26:
     dependencies:
@@ -1164,4 +1164,4 @@ snapshots:
     dependencies:
       vue: 3.5.26
     optionalDependencies:
-      vite-plugin-vuetify: 2.1.2(vite@7.3.0(sass@1.97.0))(vue@3.5.26)(vuetify@3.11.4)
+      vite-plugin-vuetify: 2.1.2(vite@7.3.0(sass@1.97.2))(vue@3.5.26)(vuetify@3.11.4)
