@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.0
+### Improvement
+- remove electron
+- use pnpm as package manager
+
 ## 1.1.24
 ### Fixed
 - Extended ESP synchronization errors now show manual boot-mode guidance during connection and return to maintenance mode ([issue #178](https://github.com/thelastoutpostworkshop/ESPConnect/issues/178)).
