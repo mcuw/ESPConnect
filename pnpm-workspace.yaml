@@ -3,3 +3,7 @@ allowBuilds:
 onlyBuiltDependencies:
   - '@parcel/watcher'
   - esbuild
+
+overrides:
+  immutable@>=5.0.0 <5.1.5: '>=5.1.5'
+  rollup@>=4.0.0 <4.59.0: '>=4.59.0'
