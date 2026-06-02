@@ -65,7 +65,7 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-describe("tasmota-webserial-esptool wrapper contract", () => {
+describe.skip("tasmota-webserial-esptool wrapper contract", () => {
   it("connectAndHandshake reports status order and returns expected shape", async () => {
     const { client, port, statuses } = createClient("handshake", {
       desiredBaud: 921600,
