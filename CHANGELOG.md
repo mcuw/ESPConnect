@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.0
+### Improvement
+- started fork
+- remove electron
+- use pnpm as package manager
+
 ## 1.1.14
 ### Improvement
 - Added Czech translations. Thanks to macikm for the contribution ([PR #161](https://github.com/thelastoutpostworkshop/ESPConnect/pull/161)).
