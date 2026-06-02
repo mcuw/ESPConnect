@@ -16,7 +16,7 @@ importers:
         specifier: ^7.4.47
         version: 7.4.47
       tasmota-webserial-esptool:
-        specifier: ^7.3.7
+        specifier: ^7.3.10
         version: 7.3.10
       vue:
         specifier: ^3.5.34
