@@ -29,36 +29,34 @@ jobs:
     steps:
       # https://github.com/actions/checkout
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
-      - name: Setup Node
-        uses: actions/setup-node@v6.4.0
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
         with:
-          node-version: 24
-          cache: "pnpm"
+          node-version: 26
 
-      - name: Install pnpm
-        run: npm i -g pnpm --no-fund
-
-      - name: Install dependencies and fail if an update is needed
-        run: pnpm i
+      - name: Install dependencies
+        run: |
+          corepack enable
+          pnpm i
 
       - name: Typecheck
-        run: npm run typecheck
+        run: pnpm typecheck
 
       - name: Unit tests
-        run: npm run test
+        run: pnpm test
 
       - name: Build
-        run: npm run build
+        run: pnpm build
 
       # https://github.com/actions/upload-pages-artifact
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v5
         with:
           path: "./dist"
 
       # https://github.com/actions/deploy-pages
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
