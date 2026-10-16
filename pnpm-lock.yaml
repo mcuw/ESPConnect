@@ -16,8 +16,8 @@ importers:
         specifier: ^7.4.47
         version: 7.4.47
       tasmota-webserial-esptool:
-        specifier: 7.3.10
-        version: 7.3.10
+        specifier: 9.4.2
+        version: 9.4.2
       vue:
         specifier: ^3.5.43
         version: 3.5.43(typescript@5.9.3)
@@ -780,8 +780,8 @@ packages:
     resolution: {integrity: sha512-MVHddDVweXZF3awtlAS+6pgKLlm/JgxZ90+/NBurBoQctVOOB/zDdVjcyPzQ+0laDGbsWgrRkflI65sQeOgT9Q==}
     engines: {node: '>=8'}
 
-  pako@2.1.0:
-    resolution: {integrity: sha512-w+eufiZ1WuJYgPXbV/PO3NCMEc3xqylkKHzp8bxp1uW4qaSNQUkwmLLEc3kKsfz8lpV1F8Ht3U1Cm+9Srog2ug==}
+  pako@2.2.0:
+    resolution: {integrity: sha512-zJq6RP/5q+TO2OpFV3FHzlPnFjmkb7Nc99a5SNjJE+uu/PkpChs+NIZSSzbBoD+6kjiISXjfYdwj1ZRQ81dz/w==}
 
   patch-package@8.0.1:
     resolution: {integrity: sha512-VsKRIA8f5uqHQ7NGhwIna6Bx6D9s/1iXlA1hthBVBEbkq+t4kXD0HHt+rJhf/Z+Ci0F/HCB2hvn0qLdLG+Qxlw==}
@@ -874,8 +874,8 @@ packages:
     resolution: {integrity: sha512-qpCAvRl9stuOHveKsn7HncJRvv501qIacKzQlO/+Lwxc9+0q2wLyv4Dfvt80/DPn2pqOBsJdDiogXGR9+OvwRw==}
     engines: {node: '>=8'}
 
-  tasmota-webserial-esptool@7.3.10:
-    resolution: {integrity: sha512-MDcHphkQOpLTLw5hCcilvOtHzJtcVOoERHEYrf3Y4M9SXE9dKR4AbmVnzNGpQ/T5gGdIZ8UfiMVpMu0ni9epzQ==}
+  tasmota-webserial-esptool@9.4.2:
+    resolution: {integrity: sha512-kEGEJ5C5I8MQysqvkk63RaoClpRXdpt6fF9o5l1U1Pioty9wodtT11ms08N3DpX4zF+Fw/SyuAfU+JDjDR466w==}
 
   tinybench@6.2.0:
     resolution: {integrity: sha512-78U2TlB2CnVenajOFzf3BKSm0J6oz5L0NV7g32LCPccvYc0lbWvys4d3uUUCS2B1N8PAf2+aekR8i1KbC3HO7Q==}
@@ -1670,7 +1670,7 @@ snapshots:
       is-docker: 2.2.1
       is-wsl: 2.2.0
 
-  pako@2.1.0: {}
+  pako@2.2.0: {}
 
   patch-package@8.0.1:
     dependencies:
@@ -1779,9 +1779,9 @@ snapshots:
     dependencies:
       has-flag: 4.0.0
 
-  tasmota-webserial-esptool@7.3.10:
+  tasmota-webserial-esptool@9.4.2:
     dependencies:
-      pako: 2.1.0
+      pako: 2.2.0
       tslib: 2.8.1
 
   tinybench@6.2.0: {}
