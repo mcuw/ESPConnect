@@ -25,7 +25,7 @@
     "@mdi/font": "^7.4.47",
     "tasmota-webserial-esptool": "7.3.10",
     "vue": "^3.5.43",
-    "vue-i18n": "^11.4.13",
+    "vue-i18n": "^11.4.14",
     "vuetify": "^4.2.3"
   },
   "devDependencies": {
